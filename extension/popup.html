@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=360" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>AI-MD</title>
+  </head>
+  <body>
+    <div class="popup">
+      <div class="hdr">
+        <div class="hdr-left">
+          <img src="icons/icon48.png" alt="" class="hdr-icon" />
+          <span class="hdr-name">AI-MD</span>
+          <span class="hdr-ver" id="el-ver">v1.0</span>
+        </div>
+        <div class="hdr-btns">
+          <button class="ibtn" id="btn-settings" title="Settings">⚙️</button>
+          <button class="ibtn" id="btn-theme" title="Toggle dark mode">🌙</button>
+        </div>
+      </div>
+
+      <div id="el-xpanel" class="hidden">
+        <div class="card xpanel" id="el-xpanel-inner">
+          <div class="xhdr">
+            <div class="xhdr-left">
+              <div class="xdot"></div>
+              <span class="xtitle" id="el-xtitle">Exporting Chat</span>
+            </div>
+            <button class="xclose" id="btn-xcancel" title="Cancel">×</button>
+          </div>
+          <div class="xprog">
+            <div class="xring-wrap">
+              <svg class="xring" viewBox="0 0 58 58">
+                <circle class="xring-bg" cx="29" cy="29" r="25" />
+                <circle
+                  class="xring-fg"
+                  id="el-xring"
+                  cx="29"
+                  cy="29"
+                  r="25"
+                  stroke-dasharray="157.08"
+                  stroke-dashoffset="157.08"
+                />
+              </svg>
+              <div class="xring-pct" id="el-xpct">0%</div>
+            </div>
+            <div class="xstats">
+              <div class="xstat">
+                <span class="xstat-ico">💬</span><span class="xstat-val" id="el-xmsgs">0</span
+                ><span class="xstat-lbl">messages</span>
+              </div>
+              <div class="xstat">
+                <span class="xstat-ico">🔤</span><span class="xstat-val" id="el-xtokens">—</span
+                ><span class="xstat-lbl">tokens</span>
+              </div>
+              <div class="xstat">
+                <span class="xstat-ico">⏱️</span><span class="xstat-val" id="el-xtime">0s</span
+                ><span class="xstat-lbl">elapsed</span>
+              </div>
+              <div class="xstat" id="el-xeta-row">
+                <span class="xstat-ico">⏳</span><span class="xstat-val" id="el-xeta">—</span
+                ><span class="xstat-lbl">left</span>
+              </div>
+            </div>
+          </div>
+          <div class="xstatus" id="el-xstatus">Preparing...</div>
+          <div id="el-xdone" class="hidden">
+            <div class="xdone-banner">
+              <span>✅</span>
+              <span>Downloaded! <span id="el-xsummary"></span></span>
+            </div>
+            <div class="xdone-btns">
+              <button class="xbtn xbtn--blue" id="btn-xdownload">⬇️ Again</button>
+              <button class="xbtn xbtn--grey" id="btn-xcopy">📋 Copy</button>
+              <button class="xbtn xbtn--ghost" id="btn-xdismiss">✕</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="el-main">
+        <div class="tabs" id="el-tabs">
+          <button class="tab on" data-scope="mainContent">📄 Article</button>
+          <button class="tab" data-scope="fullPage">📃 Full Page</button>
+          <button class="tab" data-scope="selection">✂️ Selection</button>
+        </div>
+
+        <div style="height: 8px"></div>
+
+        <button class="btn-main" id="btn-convert"><span>⚡</span> Convert to Markdown</button>
+
+        <div style="height: 6px"></div>
+
+        <div class="btn-row">
+          <button class="btn-sec" id="btn-copy">📋 Copy</button>
+          <button class="btn-sec" id="btn-download">⬇️ Download</button>
+        </div>
+      </div>
+
+      <div class="stats hidden" id="el-stats">
+        <div class="stat">
+          <span class="stat-val" id="el-s-tokens">—</span><span class="stat-lbl">Tokens</span>
+        </div>
+        <div class="stat">
+          <span class="stat-val" id="el-s-chars">—</span><span class="stat-lbl">Chars</span>
+        </div>
+        <div class="stat">
+          <span class="stat-val" id="el-s-words">—</span><span class="stat-lbl">Words</span>
+        </div>
+      </div>
+
+      <div class="preview hidden" id="el-preview"></div>
+
+      <div class="hidden" id="el-toast"></div>
+
+      <div class="settings" id="el-settings">
+        <div class="card card--tight">
+          <div class="sgroup">
+            <div class="sgroup-title">Output</div>
+            <div class="srow">
+              <div class="srow-info">
+                <div class="srow-label">Include metadata</div>
+                <div class="srow-desc">Title, URL, date in output</div>
+              </div>
+              <label class="sw"
+                ><input type="checkbox" id="s-meta" checked /><span class="sw-track"></span
+              ></label>
+            </div>
+            <div class="srow">
+              <div class="srow-info">
+                <div class="srow-label">Include links</div>
+              </div>
+              <label class="sw"
+                ><input type="checkbox" id="s-links" checked /><span class="sw-track"></span
+              ></label>
+            </div>
+            <div class="srow">
+              <div class="srow-info">
+                <div class="srow-label">Include images</div>
+              </div>
+              <label class="sw"
+                ><input type="checkbox" id="s-images" checked /><span class="sw-track"></span
+              ></label>
+            </div>
+            <div class="srow">
+              <div class="srow-info">
+                <div class="srow-label">Heading style</div>
+              </div>
+              <select class="ssel" id="s-heading">
+                <option value="atx"># ATX</option>
+                <option value="setext">Setext</option>
+              </select>
+            </div>
+            <div class="srow">
+              <div class="srow-info">
+                <div class="srow-label">Code blocks</div>
+              </div>
+              <select class="ssel" id="s-code">
+                <option value="fenced">``` Fenced</option>
+                <option value="indented">Indented</option>
+              </select>
+            </div>
+          </div>
+          <div class="sgroup">
+            <div class="sgroup-title">Behavior</div>
+            <div class="srow">
+              <div class="srow-info">
+                <div class="srow-label">Auto-copy</div>
+                <div class="srow-desc">Copy after conversion</div>
+              </div>
+              <label class="sw"
+                ><input type="checkbox" id="s-autocopy" /><span class="sw-track"></span
+              ></label>
+            </div>
+            <div class="srow">
+              <div class="srow-info">
+                <div class="srow-label">Show preview</div>
+              </div>
+              <label class="sw"
+                ><input type="checkbox" id="s-preview" checked /><span class="sw-track"></span
+              ></label>
+            </div>
+            <div class="srow">
+              <div class="srow-info">
+                <div class="srow-label">Show stats</div>
+                <div class="srow-desc">Token and character counts</div>
+              </div>
+              <label class="sw"
+                ><input type="checkbox" id="s-stats" checked /><span class="sw-track"></span
+              ></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ftr">
+        <span>AI-MD</span>
+      </div>
+    </div>
+
+    <script src="libs/browser-polyfill.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

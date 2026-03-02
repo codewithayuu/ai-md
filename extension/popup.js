@@ -91,7 +91,7 @@
         }
 
         if (Object.keys(migrate).length) {
-          browser.storage.sync.set(migrate).catch(function () {});
+          browser.storage.sync.set(migrate).catch(function () { });
         }
 
         for (var sid in SETTINGS) {
@@ -127,7 +127,7 @@
     var o = {};
     o[key] = val;
     var store = key === "theme" ? browser.storage.local : browser.storage.sync;
-    store.set(o).catch(function () {});
+    store.set(o).catch(function () { });
   }
 
   function getSettings() {
@@ -167,10 +167,29 @@
       }
 
       var settings = getSettings();
-      browser.tabs
-        .sendMessage(tab.id, {
-          action: "convertToMarkdown",
-          settings: settings,
+      var msg = {
+        action: "convertToMarkdown",
+        settings: settings,
+      };
+
+      function sendMsg() {
+        return browser.tabs.sendMessage(tab.id, msg);
+      }
+
+      sendMsg()
+        .catch(function (err) {
+          // If connection failed, try to inject content script and retry
+          if (err.message && err.message.includes("Could not establish connection")) {
+            return browser.scripting
+              .executeScript({
+                target: { tabId: tab.id },
+                files: ["libs/readability.js", "libs/turndown.js", "arena-extractor.js", "content.js"],
+              })
+              .then(function () {
+                return sendMsg();
+              });
+          }
+          throw err;
         })
         .then(function (result) {
           resetBtn();
@@ -205,7 +224,11 @@
         })
         .catch(function (err) {
           resetBtn();
-          toast("Error: " + (err.message || err), "err");
+          if (err.message && err.message.includes("Could not establish connection")) {
+            toast("Please refresh the page and try again.", "warn");
+          } else {
+            toast("Error: " + (err.message || err), "err");
+          }
         });
     });
   }
@@ -271,7 +294,7 @@
         var ok = false;
         try {
           ok = document.execCommand("copy");
-        } catch (e) {}
+        } catch (e) { }
         document.body.removeChild(ta);
         return Promise.resolve(ok);
       } catch (e2) {
@@ -417,7 +440,7 @@
           }
         }
       })
-      .catch(function () {});
+      .catch(function () { });
   }
 
   function xStartPoll() {
@@ -444,7 +467,7 @@
       var m = browser.runtime.getManifest();
       var v = $("el-ver");
       if (v) v.textContent = "v" + m.version;
-    } catch (e) {}
+    } catch (e) { }
 
     var settingsBtn = $("btn-settings");
     var settingsEl = $("el-settings");

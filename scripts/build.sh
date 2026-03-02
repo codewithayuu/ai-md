@@ -180,30 +180,14 @@ build_firefox() {
   # Create Firefox-specific manifest with required settings
   if command -v jq &> /dev/null; then
     echo "Using jq to create Firefox manifest..."
-    # For Firefox 109, modify the background section to use scripts instead of service_worker
     jq '
-    .browser_specific_settings = {
-      "gecko": {
-        "id": "aimd@extension",
-        "data_collection_permissions": {
-          "required": ["none"]
-        },
-        "strict_min_version": "109.0"
-      }
-    } |
-    if has("background") then
-      .background = {
-        "scripts": ["libs/jszip.min.js", "multi-tab-utils.js", "settings.js", "background.js"]
-      }
-    else
-      .
-    end
+    .browser_specific_settings.gecko.id = "aimd@extension" |
+    .browser_specific_settings.gecko.strict_min_version = "109.0" |
+    .browser_specific_settings.gecko.data_collection_permissions = { "required": ["none"] }
     ' "$EXT_DIR/manifest.json" > "$FIREFOX_DIR/manifest.json"
   else
     echo "jq not found, using manual modification..."
     cp "$EXT_DIR/manifest.json" "$FIREFOX_DIR/manifest.json"
-    # This is a basic substitution but might not work for all cases
-    sed -i.bak 's/"service_worker": "background.js",\s*"type": "module"/"scripts": ["libs\/jszip.min.js", "multi-tab-utils.js", "background.js"]/' "$FIREFOX_DIR/manifest.json" || true
     rm -f "$FIREFOX_DIR/manifest.json.bak" 2>/dev/null || true
   fi
   

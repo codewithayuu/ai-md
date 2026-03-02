@@ -20,7 +20,23 @@
   "use strict";
 
   if (!(globalThis.chrome && globalThis.chrome.runtime && globalThis.chrome.runtime.id)) {
-    throw new Error("This script should only be loaded in a browser extension.");
+    // Polyfill for non-extension environments (e.g. standard web pages)
+    const noop = () => { };
+    const createMock = () => new Proxy(() => { }, {
+      get: (target, prop) => {
+        if (prop === 'addListener' || prop === 'removeListener' || prop === 'hasListener') return noop;
+        return createMock();
+      },
+      apply: (target, thisArg, args) => {
+        // Try to invoke callback if present (for async APIs)
+        const cb = args.length > 0 && typeof args[args.length - 1] === 'function' ? args[args.length - 1] : null;
+        if (cb) setTimeout(() => cb([]), 0); // Return empty array/obj by default
+      }
+    });
+
+    globalThis.chrome = new Proxy({ runtime: { id: 'mock', lastError: null } }, {
+      get: (target, prop) => target[prop] || createMock()
+    });
   }
   if (!(globalThis.browser && globalThis.browser.runtime && globalThis.browser.runtime.id)) {
     const CHROME_SEND_MESSAGE_CALLBACK_NO_RESPONSE_MESSAGE = "The message port closed before a response was received.";
@@ -1217,7 +1233,7 @@
 
     // The build process adds a UMD wrapper around this file, which makes the
     // `module` variable available.
-    module.exports = wrapAPIs(chrome);
+    module.exports = wrapAPIs(globalThis.chrome || {});
   } else {
     module.exports = globalThis.browser;
   }

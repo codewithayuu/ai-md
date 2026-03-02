@@ -27,8 +27,7 @@
     "downloads",
     "notifications",
     "scripting",
-    "contextMenus",
-    "menus"
+    "contextMenus"
   ],
   "host_permissions": [
     "https://arena.ai/*",
@@ -50,7 +49,6 @@
         "<all_urls>"
       ],
       "js": [
-        "libs/browser-polyfill.js",
         "libs/readability.js",
         "libs/turndown.js",
         "arena-extractor.js",
@@ -90,12 +88,6 @@
     }
   },
   "background": {
-    "scripts": [
-      "libs/browser-polyfill.js",
-      "libs/jszip.min.js",
-      "settings.js",
-      "multi-tab-utils.js",
-      "background.js"
-    ]
+    "service_worker": "background.js"
   }
 }
